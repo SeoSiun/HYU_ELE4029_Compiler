@@ -11,7 +11,7 @@
 
 /* states in scanner DFA */
 typedef enum
-   { START,INASSIGN,INCOMMENT,INNUM,INID,DONE }
+   { START,INASSIGN,INNE,INLT,INGT,INOVER,INCOMMENT,ENDCOMMENT,INNUM,INID,DONE }
    StateType;
 
 /* lexeme of identifier or reserved word */
@@ -94,26 +94,27 @@ TokenType getToken(void)
            state = INNUM;
          else if (isalpha(c))
            state = INID;
-         else if (c == ':')
+         else if (c == '=')
            state = INASSIGN;
+	 else if (c == '!')
+	   state = INNE;
+         else if (c == '<')
+           state = INLT;
+         else if (c == '>')
+           state = INGT;
+         else if (c == '/')
+	 {
+	   save = FALSE;
+           state = INOVER;
+	 }
          else if ((c == ' ') || (c == '\t') || (c == '\n'))
            save = FALSE;
-         else if (c == '{')
-         { save = FALSE;
-           state = INCOMMENT;
-         }
          else
          { state = DONE;
            switch (c)
            { case EOF:
                save = FALSE;
                currentToken = ENDFILE;
-               break;
-             case '=':
-               currentToken = EQ;
-               break;
-             case '<':
-               currentToken = LT;
                break;
              case '+':
                currentToken = PLUS;
@@ -124,17 +125,29 @@ TokenType getToken(void)
              case '*':
                currentToken = TIMES;
                break;
-             case '/':
-               currentToken = OVER;
-               break;
              case '(':
                currentToken = LPAREN;
                break;
              case ')':
                currentToken = RPAREN;
                break;
+	     case '[':
+	       currentToken = LBRACE;
+	       break;
+	     case ']':
+	       currentToken = RBRACE;
+	       break;
+             case '{':
+               currentToken = LCURLY;
+               break;
+             case '}':
+               currentToken = RCURLY;
+               break;
              case ';':
                currentToken = SEMI;
+               break;
+             case ',':
+               currentToken = COMMA;
                break;
              default:
                currentToken = ERROR;
@@ -143,23 +156,72 @@ TokenType getToken(void)
          }
          break;
        case INCOMMENT:
-         save = FALSE;
+	 save = FALSE;
+         if (c == '*')
+           state = ENDCOMMENT;
+         break;
+       case ENDCOMMENT:
+	 save = FALSE;
          if (c == EOF)
          { state = DONE;
            currentToken = ENDFILE;
          }
-         else if (c == '}') state = START;
+         else if (c == '/') state = START;
+	 else state = INCOMMENT;
          break;
        case INASSIGN:
          state = DONE;
          if (c == '=')
-           currentToken = ASSIGN;
+           currentToken = EQ;
+	 else 
+	 {
+	   ungetNextChar();
+	   currentToken = ASSIGN;
+	 }
+         break;
+       case INNE:
+         state = DONE;
+         if (c == '=')
+           currentToken = NE;
          else
          { /* backup in the input */
            ungetNextChar();
            save = FALSE;
-           currentToken = ERROR;
+	   currentToken = ERROR;
          }
+         break;
+       case INLT:
+         state = DONE;
+         if (c == '=')
+           currentToken = LE;
+         else
+         { 
+           ungetNextChar();
+           currentToken = LT;
+         }
+         break;
+       case INGT:
+         state = DONE;
+         if (c == '=')
+           currentToken = GE;
+         else
+         { /* backup in the input */
+           ungetNextChar();
+           currentToken = GT;
+         }
+         break;
+       case INOVER:
+         if (c == '*')
+	 {
+	   save = FALSE;
+           state = INCOMMENT;
+	 }
+	 else 
+	 {
+	   ungetNextChar();
+	   state = DONE;
+	   currentToken = OVER;
+	 }
          break;
        case INNUM:
          if (!isdigit(c))
@@ -171,7 +233,7 @@ TokenType getToken(void)
          }
          break;
        case INID:
-         if (!isalpha(c))
+         if (!isalpha(c) && !isdigit(c))
          { /* backup in the input */
            ungetNextChar();
            save = FALSE;
