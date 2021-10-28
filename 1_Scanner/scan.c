@@ -11,7 +11,7 @@
 
 /* states in scanner DFA */
 typedef enum
-   { START,INASSIGN,INNE,INLT,INGT,INOVER,INCOMMENT,ENDCOMMENT,INNUM,INID,DONE }
+   { START,INEQ,INNE,INLT,INGT,INOVER,INCOMMENT,INCOMMENT_,INNUM,INID,DONE }
    StateType;
 
 /* lexeme of identifier or reserved word */
@@ -95,7 +95,7 @@ TokenType getToken(void)
          else if (isalpha(c))
            state = INID;
          else if (c == '=')
-           state = INASSIGN;
+           state = INEQ;
 	 else if (c == '!')
 	   state = INNE;
          else if (c == '<')
@@ -157,10 +157,14 @@ TokenType getToken(void)
          break;
        case INCOMMENT:
 	 save = FALSE;
+         if (c == EOF)
+         { state = DONE;
+           currentToken = ENDFILE;
+         }
          if (c == '*')
-           state = ENDCOMMENT;
+           state = INCOMMENT_;
          break;
-       case ENDCOMMENT:
+       case INCOMMENT_:
 	 save = FALSE;
          if (c == EOF)
          { state = DONE;
@@ -169,7 +173,7 @@ TokenType getToken(void)
          else if (c == '/') state = START;
 	 else state = INCOMMENT;
          break;
-       case INASSIGN:
+       case INEQ:
          state = DONE;
          if (c == '=')
            currentToken = EQ;

@@ -1,0 +1,41 @@
+void main(void)
+{
+	int i; int x[5];
+	
+	i = 0;
+	while( i < 5 )
+	{
+		x[i] = input();
+
+		i = i + 1;
+	}
+
+	i = 0;
+	while( i <= 4 )
+	{
+		if( x[i] != 0 )
+		{
+			output(x[i;
+		}
+	}
+/**/
+/* *dfjlaksdjlaksj * lkasdjlaskdjlk *
+
+/
+
+*/
+
+/* */
+
+dfsd=fs
+fsd=!*
+fsd=*f
+@#$
+int jiji(string s, int v){
+	int k =0; {}}
+	}
+	[
+	]
+	''"
+	.,
+	123094 d29fs
