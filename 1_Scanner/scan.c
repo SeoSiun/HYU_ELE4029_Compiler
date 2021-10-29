@@ -173,6 +173,7 @@ TokenType getToken(void)
 	 }
 	 else 
 	 { // OVER (/)
+	   /* backup in the input */
 	   ungetNextChar();
 	   state = DONE;
 	   currentToken = OVER;
@@ -206,6 +207,7 @@ TokenType getToken(void)
          if (c == '=') currentToken = EQ;
 	 else 
 	 { // ASSIGN (=)
+	   /* backup in the input */
 	   ungetNextChar();
 	   currentToken = ASSIGN;
 	 }
@@ -216,6 +218,7 @@ TokenType getToken(void)
          if (c == '=') currentToken = NE;
          else 
          { // ERROR (!)
+           /* backup in the input */
            ungetNextChar();
            save = FALSE;
 	   currentToken = ERROR;
@@ -227,6 +230,7 @@ TokenType getToken(void)
          if (c == '=') currentToken = LE;
          else
          { // LT (<)
+           /* backup in the input */
            ungetNextChar();
            currentToken = LT;
          }
@@ -237,6 +241,7 @@ TokenType getToken(void)
          if (c == '=') currentToken = GE;
          else
          { // GT (>)
+           /* backup in the input */
            ungetNextChar();
            currentToken = GT;
          }
