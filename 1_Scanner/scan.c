@@ -167,7 +167,7 @@ TokenType getToken(void)
          break;
        case INOVER:
          if (c == '*')
-	 { // COMMENT (/*)
+	 { // COMMENT (/*) -> don't save
 	   save = FALSE;
            state = INCOMMENT;
 	 }
@@ -179,6 +179,7 @@ TokenType getToken(void)
 	 }
          break;
        case INCOMMENT:
+         // in COMMENT, don't save
 	 save = FALSE;
          if (c == EOF)
          { state = DONE;
@@ -188,6 +189,7 @@ TokenType getToken(void)
          if (c == '*') state = INCOMMENT_;
          break;
        case INCOMMENT_:
+         // in COMMENT, don't save
 	 save = FALSE;
          if (c == EOF)
          { state = DONE;
