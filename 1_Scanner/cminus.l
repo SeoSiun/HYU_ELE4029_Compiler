@@ -1,10 +1,3 @@
-/****************************************************/
-/* File: tiny.l                                     */
-/* Lex specification for TINY                       */
-/* Compiler Construction: Principles and Practice   */
-/* Kenneth C. Louden                                */
-/****************************************************/
-
 %{
 #include "globals.h"
 #include "util.h"
@@ -16,6 +9,7 @@ char tokenString[MAXTOKENLEN+1];
 digit       [0-9]
 number      {digit}+
 letter      [a-zA-Z]
+/* identifier start with letter, and then letter or digit */
 identifier  {letter}({letter}|{digit})*
 newline     \n
 whitespace  [ \t]+
@@ -52,15 +46,18 @@ whitespace  [ \t]+
 {newline}       {lineno++;}
 {whitespace}    {/* skip whitespace */}
 "/*"             { char c;
+		   // in COMMENT
                   do
                   { c = input();
+		    if (c == '*'){
+		      /* to check if end of COMMENT */
+		      c = input();
+		      /* if end of COMMENT, break */
+		      if(c=='/') break;
+		    }
+		    /* to cover the case that Lex detect '\0' instead of EOF(-1) in the end of the input source. */
                     if (c == EOF || c == '\0') break;
                     if (c == '\n') lineno++;
-		    if (c == '*'){
-		      c = input();
-		      if(c == '\n') lineno++;
-		      if(c == '/' || c == '\0' || c == EOF) break;
-		    }
                   } while (1);
                 }
 .               {return ERROR;}

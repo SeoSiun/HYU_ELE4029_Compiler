@@ -26,7 +26,15 @@ void main(void)
 */
 
 /* */
+/
 
+/*
+
+*
+
+/
+
+*/
 dfsd=fs
 fsd=!*
 fsd=*f
@@ -39,3 +47,7 @@ int jiji(string s, int v){
 	''"
 	.,
 	123094 d29fs
+	/
+	
+	
+	
