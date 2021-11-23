@@ -46,17 +46,19 @@ whitespace  [ \t]+
 {newline}       {lineno++;}
 {whitespace}    {/* skip whitespace */}
 "/*"             { char c;
+		    int end=0;
 		   // in COMMENT
                   do
                   { c = input();
-		    if (c == '*'){
+		    while (c == '*'){
 		      /* to check if end of COMMENT */
 		      c = input();
 		      /* if end of COMMENT, break */
-		      if(c=='/') break;
+		      if(c=='/') end=1;
 		    }
 		    /* to cover the case that Lex detect '\0' instead of EOF(-1) in the end of the input source. */
                     if (c == EOF || c == '\0') break;
+                    if (end==1) break;
                     if (c == '\n') lineno++;
                   } while (1);
                 }

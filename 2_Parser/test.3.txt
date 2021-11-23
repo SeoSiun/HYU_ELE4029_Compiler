@@ -18,36 +18,4 @@ void main(void)
 			output(x[i;
 		}
 	}
-/**/
-/* *dfjlaksdjlaksj * lkasdjlaskdjlk *
-
-/
-
-*/
-
-/* */
-/
-
-/*
-
-*
-
-/
-
-*/
-dfsd=fs
-fsd=!*
-fsd=*f
-@#$
-int jiji(string s, int v){
-	int k =0; {}}
-	}
-	[
-	]
-	''"
-	.,
-	123094 d29fs
-	/
-	
-	
-	
+/** sdlkj **/

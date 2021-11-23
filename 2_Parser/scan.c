@@ -199,7 +199,7 @@ TokenType getToken(void)
          // end of COMMENT (*/)
          else if (c == '/') state = START;
 	 // still in COMMENT
-	 else state = INCOMMENT;
+	 else if(c != '*') state = INCOMMENT;
          break;
        case INEQ:
          state = DONE;

@@ -911,32 +911,34 @@ case 30:
 YY_RULE_SETUP
 #line 48 "cminus.l"
 { char c;
+		    int end=0;
 		   // in COMMENT
                   do
                   { c = input();
-		    if (c == '*'){
+		    while (c == '*'){
 		      /* to check if end of COMMENT */
 		      c = input();
 		      /* if end of COMMENT, break */
-		      if(c=='/') break;
+		      if(c=='/') end=1;
 		    }
 		    /* to cover the case that Lex detect '\0' instead of EOF(-1) in the end of the input source. */
                     if (c == EOF || c == '\0') break;
+                    if (end==1) break;
                     if (c == '\n') lineno++;
                   } while (1);
                 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 63 "cminus.l"
+#line 65 "cminus.l"
 {return ERROR;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 65 "cminus.l"
+#line 67 "cminus.l"
 ECHO;
 	YY_BREAK
-#line 940 "lex.yy.c"
+#line 942 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1941,7 +1943,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 65 "cminus.l"
+#line 67 "cminus.l"
 
 
 TokenType getToken(void)
