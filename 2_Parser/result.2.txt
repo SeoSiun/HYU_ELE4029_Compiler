@@ -1,77 +1,44 @@
 
 C-MINUS COMPILATION: ./test.2.txt
-	1: reserved word: void
-	1: ID, name= main
-	1: (
-	1: reserved word: void
-	1: )
-	2: {
-	3: reserved word: int
-	3: ID, name= i
-	3: ;
-	3: reserved word: int
-	3: ID, name= x
-	3: [
-	3: NUM, val= 5
-	3: ]
-	3: ;
-	5: ID, name= i
-	5: =
-	5: NUM, val= 0
-	5: ;
-	6: reserved word: while
-	6: (
-	6: ID, name= i
-	6: <
-	6: NUM, val= 5
-	6: )
-	7: {
-	8: ID, name= x
-	8: [
-	8: ID, name= i
-	8: ]
-	8: =
-	8: ID, name= input
-	8: (
-	8: )
-	8: ;
-	10: ID, name= i
-	10: =
-	10: ID, name= i
-	10: +
-	10: NUM, val= 1
-	10: ;
-	11: }
-	13: ID, name= i
-	13: =
-	13: NUM, val= 0
-	13: ;
-	14: reserved word: while
-	14: (
-	14: ID, name= i
-	14: <=
-	14: NUM, val= 4
-	14: )
-	15: {
-	16: reserved word: if
-	16: (
-	16: ID, name= x
-	16: [
-	16: ID, name= i
-	16: ]
-	16: !=
-	16: NUM, val= 0
-	16: )
-	17: {
-	18: ID, name= output
-	18: (
-	18: ID, name= x
-	18: [
-	18: ID, name= i
-	18: ]
-	18: )
-	18: ;
-	19: }
-	20: }
-	21: }
-	22: EOF
+
+Syntax tree:
+  Function Declaration: name = main, return type = void
+    Void Parameter
+    Compound Statement:
+      Variable Declaration: name = i, type = int
+      Variable Declaration: name = x, type = int[]
+        Const: 5
+      Assign:
+        Variable: name = i
+        Const: 0
+      While Statement:
+        Op: <
+          Variable: name = i
+          Const: 5
+        Compound Statement:
+          Assign:
+            Variable: name = x
+              Variable: name = i
+            Call: function name = input
+          Assign:
+            Variable: name = i
+            Op: +
+              Variable: name = i
+              Const: 1
+      Assign:
+        Variable: name = i
+        Const: 0
+      While Statement:
+        Op: <=
+          Variable: name = i
+          Const: 4
+        Compound Statement:
+          If Statement:
+            Op: !=
+              Variable: name = x
+                Variable: name = i
+              Const: 0
+            Compound Statement:
+              Call: function name = output
+                Variable: name = x
+                  Variable: name = i

@@ -13,10 +13,33 @@
 #include "parse.h"
 
 #define YYSTYPE TreeNode *
-static char * savedName; /* for use in assignments */
-static int savedLineNo;  /* ditto */
+#define MAX_STACK 10
+//static char * savedName; /* for use in assignments */
+//static int savedNum;
+//static int savedLineNo;  /* ditto */
+//static int savedType;
 static TreeNode * savedTree; /* stores syntax tree for later return */
 static int yylex(void); // added 11/2/11 to ensure no conflict with lex
+
+int nameIndex = 0;
+int numIndex = 0;
+int linenoIndex = 0;
+int typeIndex = 0;
+
+char* nameStack[MAX_STACK];
+int numStack[MAX_STACK];
+int linenoStack[MAX_STACK];
+ExpType typeStack[MAX_STACK];
+
+void pushName(char* name) { nameStack[nameIndex++] = name; }
+void pushNum(int num) { numStack[numIndex++] = num; }
+void pushLineno(int lineno) { linenoStack[linenoIndex++] = lineno; }
+void pushType(ExpType type) { typeStack[typeIndex++] = type; }
+
+char* popName() { return nameStack[--nameIndex]; }
+int popNum() { return numStack[--numIndex]; }
+int popLineno() { return linenoStack[--linenoIndex]; }
+ExpType popType() { return typeStack[--typeIndex]; }
 
 %}
 
@@ -24,117 +47,280 @@ static int yylex(void); // added 11/2/11 to ensure no conflict with lex
 %token ID NUM 
 %token ASSIGN EQ NE LT LE GT GE PLUS MINUS TIMES OVER LPAREN RPAREN LBRACE RBRACE LCURLY RCURLY SEMI COMMA
 %token ERROR 
-/* EOF..? */
+
 
 %% /* Grammar for TINY */
 
 program		: declaration_list
                  		{ savedTree = $1;} 
             		;
+id		: ID
+				{ pushName(copyString(tokenString));
+				  pushLineno(lineno);
+				}
+			;
+num		: NUM
+				{ pushNum(atoi(tokenString));
+				  pushLineno(lineno);
+				}
+			;
 declaration_list	: declaration_list declaration
 				 { YYSTYPE t = $1;
-				   if (t != NULL)
-				   { while (t->sibling != NULL)
+				   if (t != NULL){
+				     while (t->sibling != NULL)
 				        t = t->sibling;
-				     t->sibling = $3;
-				     $$ = $1; }
-				     else $$ = $3;
+				     t->sibling = $2;
+				     $$ = $1; 
+				   }
+				   else $$ = $2;
 				 }
             		| declaration  { $$ = $1; }
             		;
 declaration		: var_declaration { $$ = $1; }
             		| fun_declaration { $$ = $1; }
             		;
-var_declaration     	: type_specifier ID SEMI
-				 { $$ = newStmtNode(IfKS);
-				   $$->child[0] = $2;
-				   $$->child[1] = $4;
+var_declaration     	: type_specifier id SEMI
+				 { $$ = newStmtNode(VarDeclK);
+				   $$->type = popType();
+				   $$->attr.name = popName();
+				   $$->lineno = popLineno();
 				 }
-            		| type_specifier ID LBRACE NUM RBRACE SEMI
-				 { $$ = newStmtNode(IfK);
-				   $$->child[0] = $2;
-				   $$->child[1] = $4;
-				   $$->child[2] = $6;
+            		| type_specifier id LBRACE num RBRACE SEMI
+				 { $$ = newStmtNode(VarArrDeclK);
+				   $$->type = popType();
+				   $$->attr.name = popName();
+				   $$->lineno = popLineno();
+				   $$->child[0] = newExpNode(ConstK);
+				   $$->child[0]->attr.val = popNum();
 				 }
             		;
-type_specifier 	: int | void
-				 { $$ = newStmtNode(RepeatK);
-				   $$->child[0] = $2;
-				   $$->child[1] = $4;
+type_specifier 	: INT
+				 { $$ = newStmtNode(TypeK);
+				   $$->type = Int;
+				   pushType(Int);
 				 }
+			| VOID
+				{ $$ = newStmtNode(TypeK);
+				  $$->type = Void;
+				  pushType(Void);
+				}
 		    	;
-fun_declaration 	: type_specifier ID LPAREN params RPAREN compound_stmt
-				 { $$ = newStmtNode(AssignK);
+fun_declaration 	: type_specifier id LPAREN params RPAREN compound_stmt
+				 { $$ = newStmtNode(FuncK);
 				   $$->child[0] = $4;
-				   $$->attr.name = savedName;
-				   $$->lineno = savedLineNo;
+				   $$->child[1] = $6;
+				   $$->attr.name = popName();
+				   $$->type = popType();
+				   $$->lineno = popLineno();
 				 }
 			;
-params   		: param_list
-				 { $$ = newStmtNode(ReadK);
-				   $$->attr.name =
-				     copyString(tokenString);
-				 }
-			 | void
+params   		: param_list { $$ = $1; }
+			 | VOID { $$ = newStmtNode(VoidParamK); }
 			 ;
 param_list  		: param_list COMMA param
-				 { $$ = newStmtNode(WriteK);
-				   $$->child[0] = $2;
+				 { YYSTYPE t = $1;
+				   if (t != NULL){ 
+				     while (t->sibling != NULL)
+				        t = t->sibling;
+				     t->sibling = $3;
+				     $$ = $1; 
+				   }
+				   else $$ = $3;
 				 }
-		    	| param
+		    	| param { $$ = $1; }
 		    	;
-param         		: type_specifier ID
-				 { $$ = newExpNode(OpK);
-				   $$->child[0] = $1;
-				   $$->child[1] = $3;
-				   $$->attr.op = LT;
+param         		: type_specifier id
+				 { $$ = newStmtNode(ParamK);
+				   $$->attr.name = popName();
+				   $$->type = popType();
+				   $$->lineno = popLineno();
 				 }
-            		| type_specifier ID LBRACE RBRACE
-				 { $$ = newExpNode(OpK);
-				   $$->child[0] = $1;
-				   $$->child[1] = $3;
-				   $$->attr.op = EQ;
+            		| type_specifier id LBRACE RBRACE
+				 { $$ = newStmtNode(ParamArrK);
+				   $$->attr.name = popName();
+				   $$->type = popType();
+				   $$->lineno = popLineno();
 				 }
             		;
 compound_stmt  	: LCURLY local_declarations statement_list RCURLY
-				 { $$ = newExpNode(OpK);
-				   $$->child[0] = $1;
+				 { $$ = newStmtNode(CompoundK);
+				   $$->child[0] = $2;
 				   $$->child[1] = $3;
-				   $$->attr.op = PLUS;
 				 }
             		;
-local_delarations      : local_declarations var_declarations
-				 { $$ = newExpNode(OpK);
-				   $$->child[0] = $1;
-				   $$->child[1] = $3;
-				   $$->attr.op = TIMES;
+local_declarations      : local_declarations var_declaration
+				 { YYSTYPE t = $1;
+				   if (t != NULL){ 
+				     while (t->sibling != NULL)
+				        t = t->sibling;
+				     t->sibling = $2;
+				     $$ = $1; 
+				   }
+				   else $$ = $2;
 				 }
-            		| empty
-				 { $$ = newExpNode(OpK);
-				   $$->child[0] = $1;
-				   $$->child[1] = $3;
-				   $$->attr.op = OVER;
-				 }
+            		| { $$ = NULL; }
             		;
 statement_list      	: statement_list statement
-                 		{ $$ = $2; }
-            		| empty
-				 { $$ = newExpNode(ConstK);
-				   $$->attr.val = atoi(tokenString);
+                 		{ YYSTYPE t = $1;
+				   if (t != NULL){ 
+				     while (t->sibling != NULL)
+				        t = t->sibling;
+				     t->sibling = $2;
+				     $$ = $1; 
+				   }
+				   else $$ = $2;
 				 }
+            		| { $$ = NULL; }
             		;
-statement		: expression_stmt
-			| compound_stmt
-			| selection_stmt
-			| iteration_stmt
-			| return_stmt
+statement		: expression_stmt { $$ = $1; }
+			| compound_stmt { $$ = $1; }
+			| selection_stmt { $$ = $1; }
+			| iteration_stmt { $$ = $1; }
+			| return_stmt { $$ = $1; }
 			;
-expression_stmt	: expression SEMI
-			| SEMI
+expression_stmt	: expression SEMI { $$ = $1; }
+			| SEMI { $$ = NULL; }
 			;
-selection_stmt		: IF LPAREN
-
+selection_stmt		: IF LPAREN expression RPAREN statement
+				{ $$ = newStmtNode(IfK);
+				  $$->child[0] = $3;
+				  $$->child[1] = $5;
+				}
+			| IF LPAREN expression RPAREN statement ELSE statement
+				{ $$ = newStmtNode(IfElseK);
+				  $$->child[0] = $3;
+				  $$->child[1] = $5;
+				  $$->child[2] = $7;
+				}
+			;
+iteration_stmt		: WHILE LPAREN expression RPAREN statement
+				{ $$ = newStmtNode(WhileK);
+				  $$->child[0] = $3;
+				  $$->child[1] = $5;
+				}
+			;
+return_stmt		: RETURN SEMI { $$ = newStmtNode(NonValueReturnK);}
+			| RETURN expression SEMI
+				{ $$ = newStmtNode(ReturnK);
+				  $$->child[0] = $2;
+				}
+			;
+expression		: var ASSIGN expression
+				{ $$ = newExpNode(AssignK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				}
+			| simple_expression { $$ = $1; }
+			;
+var			: id
+				{ $$ = newExpNode(VarK);
+				  $$->attr.name = popName();
+				}
+			| id LBRACE expression RBRACE
+				{ $$ = newExpNode(VarK);
+				  $$->attr.name = popName();
+				  $$->lineno = popLineno();
+				  $$->child[0] = $3;
+				}
+			;
+simple_expression	: additive_expression LE additive_expression
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = LE;
+				}
+			| additive_expression LT additive_expression
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = LT;
+				}
+			| additive_expression GT additive_expression
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = GT;
+				}
+			| additive_expression GE additive_expression
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = GE;
+				}
+			| additive_expression EQ additive_expression
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = EQ;
+				}
+			| additive_expression NE additive_expression
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = NE;
+				}
+			| additive_expression { $$ = $1; }
+			;
+additive_expression	: additive_expression PLUS term
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = PLUS;
+				}
+			| additive_expression MINUS term
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = MINUS;
+				}
+			| term { $$ = $1; }
+			;
+term			: term TIMES factor
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = TIMES;
+				}
+			| term OVER factor
+				{ $$ = newExpNode(OpK);
+				  $$->child[0] = $1;
+				  $$->child[1] = $3;
+				  $$->attr.op = OVER;
+				}
+			| factor { $$ = $1; }
+			;
+factor			: LPAREN expression RPAREN { $$ = $2; }
+			| var { $$ = $1; }
+			| call { $$ = $1; }
+			| num
+				{ $$ = newExpNode(ConstK);
+				  $$->attr.val = popName();
+				  $$->lineno = popLineno();
+				}
+			;
+call			: id LPAREN args RPAREN
+				{ $$ = newExpNode(CallK);
+				  $$->child[0] = $3;
+				  $$->attr.name = popName();
+				}
+			;
+args			: arg_list { $$ = $1; }
+			| { $$ = NULL; }
+			;
+arg_list		: arg_list COMMA expression
+				{ YYSTYPE t = $1;
+				   if (t != NULL){ 
+				     while (t->sibling != NULL)
+				        t = t->sibling;
+				     t->sibling = $3;
+				     $$ = $1; 
+				   }
+				   else $$ = $3;
+				 }
+			| expression { $$ = $1; }	
+			;
 %%
+
 
 int yyerror(char * message)
 { fprintf(listing,"Syntax error at line %d: %s\n",lineno,message);

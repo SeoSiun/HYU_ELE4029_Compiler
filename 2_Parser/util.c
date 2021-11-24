@@ -128,6 +128,8 @@ static void printSpaces(void)
     fprintf(listing," ");
 }
 
+static char* expType[] = {"void","int"}; 
+
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
  */
@@ -138,20 +140,44 @@ void printTree( TreeNode * tree )
     printSpaces();
     if (tree->nodekind==StmtK)
     { switch (tree->kind.stmt) {
+        case TypeK:
+          fprintf(listing,"(type = )%s\n", expType[tree->type]);
+          break;
+        case CompoundK:
+          fprintf(listing,"Compound Statement:\n");
+          break;
         case IfK:
-          fprintf(listing,"If\n");
+          fprintf(listing,"If Statement:\n");
           break;
-        case RepeatK:
-          fprintf(listing,"Repeat\n");
+        case IfElseK:
+          fprintf(listing,"If-Else Statement:\n");
           break;
-        case AssignK:
-          fprintf(listing,"Assign to: %s\n",tree->attr.name);
+        case ReturnK:
+          fprintf(listing,"Return Statement:\n");
           break;
-        case ReadK:
-          fprintf(listing,"Read: %s\n",tree->attr.name);
+        case NonValueReturnK:
+          fprintf(listing,"Non-value Return Statement:\n");
           break;
-        case WriteK:
-          fprintf(listing,"Write\n");
+        case WhileK:
+          fprintf(listing,"While Statement: \n");
+          break;
+        case VarDeclK:
+          fprintf(listing,"Variable Declaration: name = %s, type = %s\n", tree->attr.name, expType[tree->type]);
+          break;
+        case VarArrDeclK:
+          fprintf(listing,"Variable Declaration: name = %s, type = %s[]\n", tree->attr.name, expType[tree->type]);
+          break;
+        case FuncK:
+          fprintf(listing,"Function Declaration: name = %s, return type = %s\n", tree->attr.name, expType[tree->type]);
+          break;
+        case ParamK:
+          fprintf(listing,"Parameter: name = %s, type = %s\n", tree->attr.name, expType[tree->type]);
+          break;
+        case ParamArrK:
+          fprintf(listing,"Parameter: name = %s, type = %s[]\n", tree->attr.name, expType[tree->type]);
+          break;
+        case VoidParamK:
+          fprintf(listing,"Void Parameter\n");
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
@@ -167,8 +193,14 @@ void printTree( TreeNode * tree )
         case ConstK:
           fprintf(listing,"Const: %d\n",tree->attr.val);
           break;
-        case IdK:
-          fprintf(listing,"Id: %s\n",tree->attr.name);
+        case VarK:
+          fprintf(listing,"Variable: name = %s\n",tree->attr.name);
+          break;
+        case AssignK:
+          fprintf(listing,"Assign:\n");
+          break;
+        case CallK:
+          fprintf(listing,"Call: function name = %s\n",tree->attr.name);
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");
