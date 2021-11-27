@@ -1,0 +1,40 @@
+int x;
+int y;
+int k;
+
+int abc (int qwe, int lol)
+{
+	int aa;
+	int bb;
+	int cc;
+	int dd;
+	int zzz[5324];
+	int ee[123];
+	int qre;
+
+	cc = 2;
+	qre = 123;
+
+
+	{
+		while (aa <= cc)
+			aa = 5;
+	}
+
+
+	ee[1] = aa + aa;
+	ee[2] = bb - bb;
+	ee[3] = cc * cc;
+	ee[4] = dd / dd;
+	ee[5] = aa < bb;
+	ee[6] = bb > cc;
+	ee[7] = cc <= dd;
+	ee[8] = dd >= cc;
+	ee=1;
+	return aa;
+}
+
+int main(void)
+{
+	return 1;
+}

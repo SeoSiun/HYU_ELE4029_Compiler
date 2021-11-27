@@ -1,0 +1,27 @@
+int main ( void a[] )
+
+{
+
+    void b;
+    int c;
+    int c;
+    int a;
+    d[1] = b + c;
+
+    
+    j = 1 + 2 * (3 + 4);
+    
+    return 1;
+}
+ 
+ 
+ void test(void) {
+     if(a<0) if(a>3) a=3; else a=4;
+     d[i] = 1;
+     
+     if(a=3) a();
+      else{
+ 	ttt = 0;
+     }
+     return;
+ }

@@ -1,6 +1,5 @@
-#line 2 "lex.yy.c"
 
-#line 4 "lex.yy.c"
+#line 3 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -482,9 +481,9 @@ char *yytext;
 #include "scan.h"
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN+1];
-#line 486 "lex.yy.c"
+#line 485 "lex.yy.c"
 /* identifier start with letter, and then letter or digit */
-#line 488 "lex.yy.c"
+#line 487 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -704,7 +703,7 @@ YY_DECL
 #line 17 "cminus.l"
 
 
-#line 708 "lex.yy.c"
+#line 707 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -938,7 +937,7 @@ YY_RULE_SETUP
 #line 67 "cminus.l"
 ECHO;
 	YY_BREAK
-#line 942 "lex.yy.c"
+#line 941 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

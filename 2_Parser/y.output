@@ -3,9 +3,6 @@ Terminals unused in grammar
     ERROR
 
 
-State 103 충돌: 1 쉬프트/리듀스
-
-
 문법
 
     0 $accept: program $end
@@ -1361,7 +1358,6 @@ State 103
 
     ELSE  shift, and go to state 106
 
-    ELSE      [reduce using rule 31 (selection_stmt)]
     $default  reduce using rule 31 (selection_stmt)
 
 

@@ -115,7 +115,7 @@ char * copyString(char * s)
 /* Variable indentno is used by printTree to
  * store current number of spaces to indent
  */
-static indentno = 0;
+static int indentno = 0;
 
 /* macros to increase/decrease indentation */
 #define INDENT indentno+=2
@@ -128,6 +128,7 @@ static void printSpaces(void)
     fprintf(listing," ");
 }
 
+// toconvert ExpType to string
 static char* expType[] = {"void","int"}; 
 
 /* procedure printTree prints a syntax tree to the 
@@ -180,7 +181,7 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Void Parameter\n");
           break;
         default:
-          fprintf(listing,"Unknown ExpNode kind\n");
+          fprintf(listing,"Unknown StmtNode kind\n");
           break;
       }
     }
