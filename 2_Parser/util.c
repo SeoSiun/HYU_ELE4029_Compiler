@@ -44,16 +44,13 @@ void printToken( TokenType token, const char* tokenString )
     case OVER: fprintf(listing,"/\n"); break;
     case ENDFILE: fprintf(listing,"EOF\n"); break;
     case NUM:
-      fprintf(listing,
-          "NUM, val= %s\n",tokenString);
+      fprintf(listing,"NUM, val= %s\n",tokenString);
       break;
     case ID:
-      fprintf(listing,
-          "ID, name= %s\n",tokenString);
+      fprintf(listing,"ID, name= %s\n",tokenString);
       break;
     case ERROR:
-      fprintf(listing,
-          "ERROR: %s\n",tokenString);
+      fprintf(listing,"ERROR: %s\n",tokenString);
       break;
     default: /* should never happen */
       fprintf(listing,"Unknown token: %d\n",token);
@@ -128,7 +125,7 @@ static void printSpaces(void)
     fprintf(listing," ");
 }
 
-// toconvert ExpType to string
+// to convert ExpType to string
 static char* expType[] = {"void","int"}; 
 
 /* procedure printTree prints a syntax tree to the 
@@ -141,9 +138,6 @@ void printTree( TreeNode * tree )
     printSpaces();
     if (tree->nodekind==StmtK)
     { switch (tree->kind.stmt) {
-        case TypeK:
-          fprintf(listing,"(type = )%s\n", expType[tree->type]);
-          break;
         case CompoundK:
           fprintf(listing,"Compound Statement:\n");
           break;
@@ -157,7 +151,7 @@ void printTree( TreeNode * tree )
           fprintf(listing,"Return Statement:\n");
           break;
         case NonValueReturnK:
-          fprintf(listing,"Non-value Return Statement:\n");
+          fprintf(listing,"Non-value Return Statement\n");
           break;
         case WhileK:
           fprintf(listing,"While Statement: \n");

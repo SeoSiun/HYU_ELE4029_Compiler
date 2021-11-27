@@ -56,13 +56,13 @@ program		: declaration_list
                  		{ savedTree = $1;} 
             		;
 id		: ID
-				{ // save id to stack
+				{ 
 				  pushName(copyString(tokenString));
 				  pushLineno(lineno);
 				}
 			;
 num		: NUM
-				{ // save num to stack
+				{ 
 				  pushNum(atoi(tokenString));
 				  pushLineno(lineno);
 				}
@@ -100,16 +100,8 @@ var_declaration     	: type_specifier id SEMI
 				   $$->child[0]->lineno = popLineno();
 				 }
             		;
-type_specifier 	: INT
-				 { $$ = newStmtNode(TypeK);
-				   $$->type = Int;
-				   pushType(Int);
-				 }
-			| VOID
-				{ $$ = newStmtNode(TypeK);
-				  $$->type = Void;
-				  pushType(Void);
-				}
+type_specifier 	: INT { pushType(Int); }
+			| VOID { pushType(Void); }
 		    	;
 fun_declaration 	: type_specifier id LPAREN params RPAREN compound_stmt
 				 { $$ = newStmtNode(FuncK);
@@ -155,7 +147,6 @@ compound_stmt  	: LCURLY local_declarations statement_list RCURLY
 				 { $$ = newStmtNode(CompoundK);
 				   $$->child[0] = $2;
 				   $$->child[1] = $3;
-				   $$->lineno = lineno;
 				 }
             		;
 local_declarations      : local_declarations var_declaration
@@ -195,21 +186,18 @@ selection_stmt		: IF LPAREN expression RPAREN statement
 				{ $$ = newStmtNode(IfK);
 				  $$->child[0] = $3;
 				  $$->child[1] = $5;
-				  $$->lineno = lineno;
 				}
 			| IF LPAREN expression RPAREN statement ELSE statement
 				{ $$ = newStmtNode(IfElseK);
 				  $$->child[0] = $3;
 				  $$->child[1] = $5;
 				  $$->child[2] = $7;
-				  $$->lineno = lineno;
 				}
 			;
 iteration_stmt		: WHILE LPAREN expression RPAREN statement
 				{ $$ = newStmtNode(WhileK);
 				  $$->child[0] = $3;
 				  $$->child[1] = $5;
-				  $$->lineno = lineno;
 				}
 			;
 return_stmt		: RETURN SEMI 
@@ -219,14 +207,12 @@ return_stmt		: RETURN SEMI
 			| RETURN expression SEMI
 				{ $$ = newStmtNode(ReturnK);
 				  $$->child[0] = $2;
-				  $$->lineno = lineno;
 				}
 			;
 expression		: var ASSIGN expression
 				{ $$ = newExpNode(AssignK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
-				  $$->lineno = lineno;
 				}
 			| simple_expression { $$ = $1; }
 			;
@@ -247,42 +233,36 @@ simple_expression	: additive_expression LE additive_expression
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = LE;
-				  $$->lineno = lineno;
 				}
 			| additive_expression LT additive_expression
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = LT;
-				  $$->lineno = lineno;
 				}
 			| additive_expression GT additive_expression
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = GT;
-				  $$->lineno = lineno;
 				}
 			| additive_expression GE additive_expression
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = GE;
-				  $$->lineno = lineno;
 				}
 			| additive_expression EQ additive_expression
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = EQ;
-				  $$->lineno = lineno;
 				}
 			| additive_expression NE additive_expression
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = NE;
-				  $$->lineno = lineno;
 				}
 			| additive_expression { $$ = $1; }
 			;
@@ -291,14 +271,12 @@ additive_expression	: additive_expression PLUS term
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = PLUS;
-				  $$->lineno = lineno;
 				}
 			| additive_expression MINUS term
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = MINUS;
-				  $$->lineno = lineno;
 				}
 			| term { $$ = $1; }
 			;
@@ -307,14 +285,12 @@ term			: term TIMES factor
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = TIMES;
-				  $$->lineno = lineno;
 				}
 			| term OVER factor
 				{ $$ = newExpNode(OpK);
 				  $$->child[0] = $1;
 				  $$->child[1] = $3;
 				  $$->attr.op = OVER;
-				  $$->lineno = lineno;
 				}
 			| factor { $$ = $1; }
 			;
