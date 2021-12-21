@@ -1,0 +1,4 @@
+int main(void) {
+	if(output(5)) {}
+	return 0;
+}

@@ -1,0 +1,21 @@
+int f(int a, int b[], int c)
+{
+	a=b+c;
+	return;
+}
+
+int main(void){
+	int a;
+	int b[1];
+	int c;
+	int d;
+	int e[10];
+	
+	a = input();
+	c = a*3;
+	d = f(a,c,d);
+	e[0]=1;
+
+	output(d);
+	output(e);
+}

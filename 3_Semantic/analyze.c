@@ -145,7 +145,7 @@ static void insertNode( TreeNode * t)
         case ParamArrK:
           l = st_lookup_excluding_parent(scope->parent, scope->name);
           // not in scope
-          if ((l = st_lookup_excluding_parent(scope, t->attr.name)) == NULL)
+          if (st_lookup_excluding_parent(scope, t->attr.name) == NULL)
           { // void varable
             if (t->type == Void)
             { fprintf(listing, "Error: Parameter Type cannot be void[] at line %d (name : %s)\n", t->lineno, t->attr.name);
@@ -249,6 +249,7 @@ static void checkNode(TreeNode * t)
           { if (t->child[0] && t->child[0]->type != Int)
             { fprintf(listing, "Error: Invalid array indexing at line %d (name: '%s'). Indices should be integer\n", t->lineno, t->attr.name);
               Error = TRUE;
+              t->type = SemanticError;
             }
             else if (!t->child[0]) t->type = l->type;
             else t->type = Int;
@@ -260,11 +261,10 @@ static void checkNode(TreeNode * t)
             Error = TRUE;
             t->type = SemanticError;
           }
-          else if ( t->child[0]->type != t->child[1]->type )
+          else if ( t->child[0]->type != t->child[1]->type && t->child[0]->type != SemanticError && t->child[1]->type != SemanticError )
           { fprintf(listing,"Error: Assginment type error at line %d (name: '%s')\n", t->lineno, t->child[0]->attr.name);
             Error = TRUE;
             t->type = SemanticError;
-            printf("left type : %d, right type: %d\n",t->child[0]->type, t->child[1]->type);
           }
           else t->type = t->child[0]->type;
           break;
